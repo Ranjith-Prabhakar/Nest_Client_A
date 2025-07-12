@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { CLIENT_A_SERVICE_RABBITMQ } from './constants';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { SocketGateway } from './socket.gateway';
@@ -21,6 +20,6 @@ import { SocketGateway } from './socket.gateway';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService, SocketGateway],
+  providers: [SocketGateway],
 })
 export class AppModule {}
