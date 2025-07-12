@@ -34,12 +34,47 @@ export class AppController {
     const originalMessage = context.getMessage();
 
     try {
-      console.log('message received from client B ', body);
+      console.log('Message received from client B:', body);
+
+      const retryCount = body.retries ?? 0;
+      if (retryCount > 2) {
+        console.warn('Message exceeded retry limit. Sending to DLQ:', body);
+        channel.sendToQueue(
+          'to-clientA.dlq',
+          Buffer.from(JSON.stringify(body)),
+          {
+            persistent: true,
+            contentType: 'application/json',
+          },
+        );
+        channel.ack(originalMessage);
+        return;
+      }
+
+      // Simulate potential processing failure
+      // if (Math.random() < 0.3) throw new Error('Simulated failure');
+
       this.socketGateway.sendMessageToClientATab(body);
       channel.ack(originalMessage);
     } catch (err) {
-      console.error('Error while processing message:', err);
-      channel.nack(originalMessage, false, false);
+      console.error('Error processing message:', err);
+
+      const retryCount = body.retries ?? 0;
+      const updatedMsg = {
+        ...body,
+        retries: retryCount + 1,
+      };
+
+      channel.sendToQueue(
+        'to-clientA.retry',
+        Buffer.from(JSON.stringify(updatedMsg)),
+        {
+          persistent: true,
+          contentType: 'application/json',
+        },
+      );
+
+      channel.ack(originalMessage);
     }
   }
 }

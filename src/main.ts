@@ -12,6 +12,8 @@ async function bootstrap() {
       queue: 'to-clientA',
       queueOptions: {
         durable: true,
+        deadLetterExchange: '',
+        deadLetterRoutingKey: 'to-clientA.retry',
       },
       noAck: false,
     },
