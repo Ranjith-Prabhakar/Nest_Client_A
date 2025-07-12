@@ -16,13 +16,13 @@ export class AppController {
   }
 
   @Post('/message-to-b')
-  createOrder(@Body() body: MESSAGE_FORMAT) {
+  sendMessageToClientB(@Body() body: MESSAGE_FORMAT) {
     this.client.emit('message-from-client-A', body);
     return { message: 'message sent to rabbitMQ', body };
   }
 
   @MessagePattern('message-from-client-B')
-  handleOrderCreated(@Payload() body: MESSAGE_FORMAT) {
+  handleMessageFromClientB(@Payload() body: MESSAGE_FORMAT) {
     console.log('message received from client B ', body);
   }
 }
