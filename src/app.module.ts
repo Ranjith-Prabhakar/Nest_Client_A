@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CLIENT_A_SERVICE_RABBITMQ } from './constants';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-
+import { SocketGateway } from './socket.gateway';
 @Module({
   imports: [
     ClientsModule.register([
@@ -21,6 +21,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
     ]),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SocketGateway],
 })
 export class AppModule {}
