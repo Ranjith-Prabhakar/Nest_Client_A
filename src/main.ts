@@ -5,7 +5,7 @@ import { CLIENT_URL, RABBITMQ_URI } from './constants';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  console.log(RABBITMQ_URI);
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {

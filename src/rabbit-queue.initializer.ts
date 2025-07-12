@@ -4,11 +4,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import * as amqp from 'amqplib';
+import { RABBITMQ_URI } from './constants';
 
 @Injectable()
 export class RabbitQueueInitializer implements OnModuleInit {
   async onModuleInit() {
-    const conn = await amqp.connect('amqp://guest:guest@localhost:5672');
+    const conn = await amqp.connect(RABBITMQ_URI);
     const channel = await conn.createChannel();
 
     await channel.assertQueue('to-clientA.dlq', {
