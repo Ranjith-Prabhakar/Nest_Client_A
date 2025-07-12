@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { CLIENT_URL, RABBITMQ_URI } from './constants';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -8,7 +9,7 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://guest:guest@localhost:5672'],
+      urls: [RABBITMQ_URI],
       queue: 'to-clientA',
       queueOptions: {
         durable: true,
@@ -20,7 +21,7 @@ async function bootstrap() {
   });
 
   app.enableCors({
-    origin: ['http://localhost:5173'],
+    origin: [CLIENT_URL],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
   });
