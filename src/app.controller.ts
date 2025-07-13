@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Body, Controller, Inject, Post } from '@nestjs/common';
 import { CLIENT_A_SERVICE_RABBITMQ, MESSAGE_FORMAT } from './constants';
 import {
