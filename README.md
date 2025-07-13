@@ -2,7 +2,7 @@
 
 This backend service represents **Client A** in a real-time, bidirectional messaging system, leveraging **RabbitMQ** as a robust message broker and **WebSocket** for pushing messages to the frontend in real-time.
 
-> 🧠 This project is an integral part of a real-time client-to-client chat system. It facilitates communication with the [Client B Service](https://github.com/Ranjith-Prabhakar/Nest_Client_A) and interacts with a [React + Vite frontend app](https://github.com/Ranjith-Prabhakar/Frontend_For_Nest.git) currently hosted on Vercel.
+> 🧠 This project is an integral part of a real-time client-to-client chat system. It facilitates communication with the [Client B Service](https://github.com/Ranjith-Prabhakar/Nest_Client_B) and interacts with a [React + Vite frontend app](https://github.com/Ranjith-Prabhakar/Frontend_For_Nest.git) currently hosted on Vercel.
 
 ---
 
