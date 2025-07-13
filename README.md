@@ -2,7 +2,7 @@
 
 This backend service represents **Client A** in a real-time, bidirectional messaging system, leveraging **RabbitMQ** as a robust message broker and **WebSocket** for pushing messages to the frontend in real-time.
 
-> 🧠 This project is an integral part of a larger real-time client-to-client chat system. It facilitates communication with the [Client B Service](https://github.com/your-username/client-b-service) and interacts with a [React + Vite frontend app](https://github.com/your-username/realtime-chat-frontend) currently hosted on Vercel.
+> 🧠 This project is an integral part of a real-time client-to-client chat system. It facilitates communication with the [Client B Service](https://github.com/Ranjith-Prabhakar/Nest_Client_A) and interacts with a [React + Vite frontend app](https://github.com/Ranjith-Prabhakar/Frontend_For_Nest.git) currently hosted on Vercel.
 
 ---
 
@@ -45,15 +45,14 @@ To get the Client A Service up and running on your local machine, follow these s
 >   ```
 >
 >   (The RabbitMQ Management UI will be available at `http://localhost:15672` with default credentials `guest:guest`).
->   Alternatively, you can use a remote RabbitMQ instance (e.g., `amqp://guest:guest@52.66.253.102:5672`).
 
 ### 🔧 Install & Run
 
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/client-a-service.git
-    cd client-a-service
+    git clone https://github.com/Ranjith-Prabhakar/Nest_Client_A.git
+    cd Nest_Client_A
     ```
 
 2.  **Install dependencies:**
