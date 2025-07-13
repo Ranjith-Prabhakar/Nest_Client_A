@@ -1,98 +1,146 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 📡 Client A Service – Real-Time Messaging with RabbitMQ, NestJS & WebSocket
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+This backend service represents **Client A** in a real-time, bidirectional messaging system, leveraging **RabbitMQ** as a robust message broker and **WebSocket** for pushing messages to the frontend in real-time.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+> 🧠 This project is an integral part of a larger real-time client-to-client chat system. It facilitates communication with the [Client B Service](https://github.com/your-username/client-b-service) and interacts with a [React + Vite frontend app](https://github.com/your-username/realtime-chat-frontend) currently hosted on Vercel.
 
-## Description
+---
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 🔄 System Workflow
 
-## Project setup
+The communication flow within the chat system is designed for real-time interaction:
 
-```bash
-$ npm install
-```
+1.  The frontend application allows a user to select either **Client A** or **Client B** for messaging.
+2.  If the user selects **Client A** and sends a message, the React app dispatches a `POST` request to this backend service (Client A) at the `/message-to-b` endpoint, containing the message payload.
+3.  This backend service (Client A) then publishes the received message to the `to-clientB` queue within RabbitMQ.
+4.  The **Client B backend service** consumes the message from the `to-clientB` queue. Upon consumption, it performs two actions:
+    - Logs the message content on its server console.
+    - Emits the message to the **Client B frontend** in real-time via WebSocket, using the event `message-to-client-b`.
+5.  In scenarios where message processing by the Client B backend fails, the message is automatically sent to a designated **retry queue** (`to-clientA.retry`). This retry queue is configured with a **10-second TTL (Time-To-Live)**.
+6.  After a message has undergone **3 retry attempts** and still fails processing, it is then automatically moved to the **DLQ (Dead Letter Queue)** (`to-clientA.dlq`) for further investigation or manual intervention.
+7.  Concurrently, this **Client A backend service** also actively listens for incoming messages on the `to-clientA` queue (which are messages originating from Client B). When a message is received, it emits it to the **Client A frontend** via WebSocket, ensuring bidirectional real-time communication.
 
-## Compile and run the project
+---
 
-```bash
-# development
-$ npm run start
+## 🛠️ Tech Stack
 
-# watch mode
-$ npm run start:dev
+The service is built using the following technologies:
 
-# production mode
-$ npm run start:prod
-```
+- **NestJS** (v11): A progressive Node.js framework for building efficient, reliable, and scalable server-side applications.
+- **RabbitMQ**: Utilized for inter-service communication and message queuing, integrated via `@nestjs/microservices` and `amqplib`.
+- **WebSocket Gateway**: Implemented with **Socket.IO** for real-time, bidirectional event-based communication with frontends.
+- **TypeScript**: Provides strong typing for enhanced code quality and maintainability.
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ npm run test
+## 📁 Folder Structure
 
-# e2e tests
-$ npm run test:e2e
+The `src/` directory is organized as follows:
+src/
+├── app.controller.ts # Handles REST endpoints and RabbitMQ consumer logic.
+├── app.module.ts # Configures the main application module, including RabbitMQ client setup.
+├── constants.ts # Defines shared constants and message format interfaces.
+├── main.ts # The application's entry point, responsible for bootstrapping and microservice binding.
+├── socket.gateway.ts # Implements the WebSocket server (Socket.IO Gateway) for real-time communication.
+└── rabbit-queue.initializer.ts # Manages the setup and configuration of RabbitMQ queues, including DLQ/Retry queues.
 
-# test coverage
-$ npm run test:cov
-```
+---
 
-## Deployment
+## 🚀 Running Locally
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+To get the Client A Service up and running on your local machine, follow these steps:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+> **Prerequisites:**
+>
+> - **Node.js** (v18 or higher recommended)
+> - A **running RabbitMQ instance**. You can run one locally using Docker:
+>
+>   ```bash
+>   docker run -d --hostname my-rabbitmq --name some-rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+>   ```
+>
+>   (The RabbitMQ Management UI will be available at `http://localhost:15672` with default credentials `guest:guest`).
+>   Alternatively, you can use a remote RabbitMQ instance (e.g., `amqp://guest:guest@52.66.253.102:5672`).
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+### 🔧 Install & Run
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+1.  **Clone the repository:**
 
-## Resources
+    ```bash
+    git clone https://github.com/your-username/client-a-service.git
+    cd client-a-service
+    ```
 
-Check out a few resources that may come in handy when working with NestJS:
+2.  **Install dependencies:**
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+    ```bash
+    npm install
+    ```
 
-## Support
+3.  **Start the application:**
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+    ```bash
+    npm run start
+    ```
 
-## Stay in touch
+    The application will typically be accessible at: `http://localhost:3000`
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### 🌐 REST Endpoint
 
-## License
+This service exposes a REST endpoint for sending messages to Client B:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- **Endpoint:** `POST /message-to-b`
+- **Content-Type:** `application/json`
+- **Example Request Body:**
+
+  ```json
+  {
+    "sender": "clientA",
+    "message": "Hello from A"
+  }
+  ```
+
+- **Functionality:** This endpoint receives messages from the Client A frontend and publishes them to the `to-clientB` queue in RabbitMQ. These messages are then consumed by the Client B backend and subsequently emitted to the Client B frontend in real-time.
+
+### 📡 WebSocket Communication
+
+The service also manages real-time communication via WebSocket:
+
+- **Listens on:** The `to-clientA` RabbitMQ queue for messages sent by Client B.
+- **Emits event:** `message-to-client-a` to the connected Client A frontend, ensuring immediate delivery of messages from Client B.
+
+### 📦 RabbitMQ Queues
+
+The following RabbitMQ queues are used and managed by this service:
+
+| Queue Name         | Purpose                                                                              |
+| :----------------- | :----------------------------------------------------------------------------------- |
+| `to-clientA`       | Primary queue for messages originating from Client B, consumed by this service.      |
+| `to-clientA.retry` | A dedicated retry queue for messages that fail initial processing from `to-clientA`. |
+| `to-clientA.dlq`   | The Dead Letter Queue for messages that exhaust their retry attempts.                |
+| `to-clientB`       | Outgoing queue for messages sent _to_ Client B, published by this service.           |
+
+**Queue Properties:**
+
+- All queues are **durable**, meaning they will survive a RabbitMQ broker restart.
+- **Manual acknowledgment** is enabled for message consumption, ensuring messages are only removed from the queue after successful processing.
+- **Retry queues** are configured using RabbitMQ's Dead Letter Exchange (DLX) and Time-To-Live (TTL) mechanisms.
+
+### 🔁 Retry Logic
+
+A robust retry mechanism is implemented for messages consumed by this service:
+
+1.  If a message fails to process within the `handleMessageFromClientB` consumer (e.g., due to an error in business logic or external service unavailability):
+2.  It is re-published to the `to-clientA.retry` queue. An `x-retries` header is incremented to track the number of attempts.
+3.  The `to-clientA.retry` queue has a **TTL of 10 seconds**. After this duration, the message expires and is automatically routed back to the original `to-clientA` queue via a Dead Letter Exchange.
+4.  The message is then re-consumed by the `handleMessageFromClientB` consumer for reprocessing.
+5.  This retry cycle continues. If the `x-retries` count exceeds **2** (meaning 3 total attempts: 1 original + 2 retries), the message is no longer sent back to `to-clientA` but is instead routed directly to the `to-clientA.dlq` for manual inspection and troubleshooting.
+
+---
+
+## 🌍 Deployment
+
+This Client A Service is currently deployed on **AWS EC2**.
+
+- Both the WebSocket and REST APIs are exposed on **port 3000**.
+- **CORS (Cross-Origin Resource Sharing)** is enabled to allow requests from the frontend application hosted at `https://frontend-for-nest.vercel.app`.
