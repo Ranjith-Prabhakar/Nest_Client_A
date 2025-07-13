@@ -31,21 +31,6 @@ The service is built using the following technologies:
 - **WebSocket Gateway**: Implemented with **Socket.IO** for real-time, bidirectional event-based communication with frontends.
 - **TypeScript**: Provides strong typing for enhanced code quality and maintainability.
 
----
-
-## 📁 Folder Structure
-
-The `src/` directory is organized as follows:
-src/
-├── app.controller.ts # Handles REST endpoints and RabbitMQ consumer logic.
-├── app.module.ts # Configures the main application module, including RabbitMQ client setup.
-├── constants.ts # Defines shared constants and message format interfaces.
-├── main.ts # The application's entry point, responsible for bootstrapping and microservice binding.
-├── socket.gateway.ts # Implements the WebSocket server (Socket.IO Gateway) for real-time communication.
-└── rabbit-queue.initializer.ts # Manages the setup and configuration of RabbitMQ queues, including DLQ/Retry queues.
-
----
-
 ## 🚀 Running Locally
 
 To get the Client A Service up and running on your local machine, follow these steps:
@@ -87,7 +72,7 @@ To get the Client A Service up and running on your local machine, follow these s
 
 ### 🌐 REST Endpoint
 
-This service exposes a REST endpoint for sending messages to Client B:
+This service exposes a REST endpoint for sending messages to Client A:
 
 - **Endpoint:** `POST /message-to-b`
 - **Content-Type:** `application/json`
